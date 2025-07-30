@@ -13,7 +13,6 @@ import {
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from "@dnd-kit/sortable"
 import { useSortable } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
-import { GripVertical } from "lucide-react"
 import { Trash2, Plus } from "lucide-react"
 
 import { useState } from "react"
@@ -48,28 +47,59 @@ function SortableItem({
     <div
       ref={setNodeRef}
       style={style}
-      className={`flex items-center gap-3 p-3 rounded-lg border transition-all ${
+      className={`flex items-center gap-2 p-4 rounded-lg border transition-all ${
         todo.completed ? "bg-muted/50 text-muted-foreground" : "bg-background hover:bg-muted/30"
-      } ${isDragging ? "opacity-50 shadow-lg" : ""}`}
+      } ${isDragging ? "opacity-50 shadow-lg scale-105 z-50" : ""}`}
     >
+      {/* Large drag handle area */}
       <div
         {...attributes}
         {...listeners}
-        className="cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground"
+        className="flex items-center justify-center w-12 h-12 -ml-2 -my-2 rounded-lg cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground hover:bg-muted/50 active:bg-muted transition-colors touch-manipulation"
+        style={{ touchAction: "none" }}
       >
-        <GripVertical className="h-4 w-4" />
+        <div className="flex flex-col gap-1">
+          <div className="flex gap-1">
+            <div className="w-1 h-1 bg-current rounded-full"></div>
+            <div className="w-1 h-1 bg-current rounded-full"></div>
+          </div>
+          <div className="flex gap-1">
+            <div className="w-1 h-1 bg-current rounded-full"></div>
+            <div className="w-1 h-1 bg-current rounded-full"></div>
+          </div>
+          <div className="flex gap-1">
+            <div className="w-1 h-1 bg-current rounded-full"></div>
+            <div className="w-1 h-1 bg-current rounded-full"></div>
+          </div>
+        </div>
       </div>
-      <Checkbox id={`todo-${todo.id}`} checked={todo.completed} onCheckedChange={() => onToggle(todo.id)} />
-      <label htmlFor={`todo-${todo.id}`} className={`flex-1 cursor-pointer ${todo.completed ? "line-through" : ""}`}>
+
+      {/* Checkbox with larger touch target */}
+      <div className="flex items-center justify-center w-10 h-10 -my-1">
+        <Checkbox
+          id={`todo-${todo.id}`}
+          checked={todo.completed}
+          onCheckedChange={() => onToggle(todo.id)}
+          className="w-5 h-5"
+        />
+      </div>
+
+      {/* Task text */}
+      <label
+        htmlFor={`todo-${todo.id}`}
+        className={`flex-1 cursor-pointer py-2 text-base ${todo.completed ? "line-through" : ""}`}
+      >
         {todo.text}
       </label>
+
+      {/* Delete button with larger touch target */}
       <Button
         variant="ghost"
         size="icon"
         onClick={() => onDelete(todo.id)}
-        className="text-destructive hover:text-destructive hover:bg-destructive/10"
+        className="w-10 h-10 text-destructive hover:text-destructive hover:bg-destructive/10 touch-manipulation"
       >
-        <Trash2 className="h-4 w-4" />
+        <Trash2 className="h-5 w-5" />
         <span className="sr-only">Delete task</span>
       </Button>
     </div>
@@ -160,8 +190,13 @@ export default function TodoApp() {
               </Button>
             </div>
 
+            {/* Add instruction text before the todo list */}
+            {todos.length > 1 && (
+              <p className="text-xs text-muted-foreground text-center pb-2">Drag the ⋮⋮ handle to reorder tasks</p>
+            )}
+
             {/* Todo list */}
-            <div className="space-y-2">
+            <div className="space-y-3">
               {todos.length === 0 ? (
                 <p className="text-center text-muted-foreground py-8">No tasks yet. Add one above!</p>
               ) : (
